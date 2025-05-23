@@ -1,0 +1,24 @@
+[project]
+name = "drf-cookiecutter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2",
+    "django-daisy>=1.0.23",
+    "django-extensions>=4.1",
+    "django-import-export>=4.3.7",
+    "djangorestframework>=3.16.0",
+    "google-api-python-client>=2.169.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+    "gspread>=6.2.1",
+    "gspread-formatting>=1.2.1",
+    "icecream>=2.1.4",
+    "oauth2client>=4.1.3",
+    "python-decouple>=3.8",
+    "telegraph>=2.2.0",
+    "uvicorn>=0.34.2",
+    "whitenoise>=6.9.0",
+]
