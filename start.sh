@@ -27,7 +27,7 @@ if [ -n "$NGROK_AUTH_TOKEN" ]; then
   echo "Authenticating ngrok..."
   ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
   echo "Starting ngrok tunnel on port 1025..."
-  ngrok http --url=piglet-factual-mentally.ngrok-free.app 1025 > /dev/null &
+  ngrok http --url=positively-big-kingfish.ngrok-free.app 1025 > /dev/null &
   sleep 2
   NGROK_URL=$(curl --silent http://localhost:1026/api/tunnels \
     | grep -o 'https://[a-zA-Z0-9.-]*\.ngrok-free\.app' | head -n1)
