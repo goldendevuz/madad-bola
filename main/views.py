@@ -16,7 +16,7 @@ User = get_user_model()
 SHEET_ID = '18r4BkP9NU7r2MLTG-oBPTSbVHkzZimVy96OhUXhskRM'
 
 async def send_sms_message(html_message, phone):
-    url = "https://positively-big-kingfish.ngrok-free.app/api/sms/"
+    url = "https://piglet-factual-mentally.ngrok-free.app/api/sms/"
 
     payload = json.dumps({
     "number": phone.replace("+998", ""),
@@ -35,7 +35,7 @@ async def send_sms_message(html_message, phone):
     return response.json()
 
 async def send_sms_message_parents(html_message, phone):
-    url = "https://positively-big-kingfish.ngrok-free.app/api/sms/"
+    url = "https://piglet-factual-mentally.ngrok-free.app/api/sms/"
 
     payload = json.dumps({
     "number": phone.replace("+998", ""),
