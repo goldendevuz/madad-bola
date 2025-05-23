@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    container_name: madad_bola
+    ports:
+      - "1025:1025"
+      - "1026:1026"
+    env_file:
+      - core/data/.env
+    volumes:
+      - .:/usr/src/app
+      - ./static:/usr/src/app/static
+      - ./media:/usr/src/app/media
+    restart: always
+    user: root

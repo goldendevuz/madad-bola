@@ -1,24 +1,49 @@
 init-env:
-	uv run3 -m venv env
+	python3 -m venv env
 act-env:
 	. env/bin/activate
 i:
 	pip install --upgrade pip && pip install -r requirements.txt
 mig:
-	uv run manage.py makemigrations && uv run manage.py migrate
+	make migration && make migrate
 cru:
-	uv run manage.py createsuperuser --username=goldendev --email=goldendev@gmail.com
-webhook:
-	uv run manage.py setwebhook
+	python manage.py createsuperuser
+test:
+	python3 manage.py test
+run-asgi:
+	uvicorn core.asgi:application --host 0.0.0.0 --port 1025 --reload
 run:
-	uv run uvicorn core.asgi:application --host 0.0.0.0 --port 1025 --reload
-clear:
+	python manage.py runserver 0.0.0.0:1025
+
+#others
+git-rm-idea:
+	git rm -r --cached .idea/
+collect:
+	python manage.py collectstatic --no-input
+rm-static:
+	rm -rf staticfiles/
+migration:
+	python3 manage.py makemigrations
+migrate:
+	python3 manage.py migrate
+startapp:
+	python manage.py startapp $(name) && mv $(name) apps/$(name)
+clear-linux:
 	find . -path "*/migrations/*.py" -not -name "__init__.py" -delete && find . -path "*/migrations/*.pyc"  -delete
-no-db:
+clear-windows:
+	Get-ChildItem -Path "*\migrations\0*.py" | Remove-Item -Force
+	Get-ChildItem -Path "*\migrations\*.pyc" | Remove-Item -Force
+no-sqlite-db:
 	rm -rf db.sqlite3
 re-django:
 	pip3 uninstall Django -y && pip3 install Django
+no-venv:
+	rm -rf env/ venv/ .venv/
 re-mig:
-	make no-db && make clear && make re-django && make mig && make cru && make run
-collect:
-	uv run manage.py collectstatic --noinput
+	make no-sqlite-db && make clear-linux && make re-django && make mig && make cru && make collect && make test && make run-asgi
+run-wsgi:
+	gunicorn core.wsgi:application --bind 0.0.0.0:1025
+tunnel:
+	jprq http 7 -s platform
+open-bash:
+	docker exec -it drf_api bash
