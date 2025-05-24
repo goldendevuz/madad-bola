@@ -43,10 +43,10 @@ def send_latest_google_response(request):
     if not responses_rows:
         return JsonResponse({'status': 'error', 'message': 'No data found'})
     responses_row = responses_rows[-1]
-    ic(responses_row)
+    # ic(responses_row)
 
     rows = get_result_rows(SHEET_ID)
-    ic(rows)
+    # ic(rows)
     if not rows:
         return JsonResponse({'status': 'error', 'message': 'No data found'})
 

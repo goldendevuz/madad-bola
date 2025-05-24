@@ -28,7 +28,7 @@ def get_user_rows(sheet_id, sheet_name="responses"):
     # ic(result)
 
     rows = result.get("values", [])
-    ic(rows)
+    # ic(rows)
     user_rows = []
     for row in rows:
         if row[22] == rows[-1][22]:
