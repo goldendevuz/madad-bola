@@ -1,10 +1,10 @@
-def format_as_html(row):
+def format_as_html(row, path):
     if len(row) < 4:
         return "Yangi javob to'liq emas."
 
-    response = f"""Test natijangiz:
+    response = f"""Sizning test natijangiz:
        
-{row[21]} {row[22]}
+https://telegra.ph/{path}
 """
 
     return response

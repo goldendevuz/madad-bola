@@ -35,3 +35,18 @@ def get_user_rows(sheet_id, sheet_name="responses"):
             user_rows.append(row)
     ic(user_rows)
     return user_rows
+
+def get_result_rows(sheet_id, sheet_name="result"):
+    range_name = f"{sheet_name}!A1:B19"  # First 4 columns (Timestamp, Name, Phone, Telegram)
+    ic(sheet_id, range_name)
+    _, sheets_service = get_google_services()
+
+    result = sheets_service.spreadsheets().values().get(
+        spreadsheetId=sheet_id,
+        range=range_name
+    ).execute()
+    # ic(result)
+
+    rows = result.get("values", [])
+    ic(rows)
+    return rows

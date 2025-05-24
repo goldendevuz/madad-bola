@@ -2,4 +2,4 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    pass
+    phone = models.CharField(max_length=9, null=True, blank=True)
