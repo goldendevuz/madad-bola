@@ -39,11 +39,11 @@ async def send_sms_message(html_message, phone):
 @api_view(['POST'])
 def send_latest_google_response(request):
     responses_rows = get_user_rows(SHEET_ID)
-    ic(responses_rows)
+    # ic(responses_rows)
     if not responses_rows:
         return JsonResponse({'status': 'error', 'message': 'No data found'})
     responses_row = responses_rows[-1]
-    # ic(responses_row)
+    ic(responses_row)
 
     rows = get_result_rows(SHEET_ID)
     # ic(rows)
@@ -76,6 +76,7 @@ def send_latest_google_response(request):
 
     user_traits_qs = UserTrait.objects.filter(user=user)
     all_traits_lists = user_traits_qs.values_list('trait', flat=True)
+    all_traits_lists = all_traits_lists.split()
     unique_traits = set(chain.from_iterable(filter(None, all_traits_lists)))
     unique_traits_list = list(unique_traits)
     ic(user_traits_qs)
@@ -86,7 +87,7 @@ def send_latest_google_response(request):
     full_name = responses_row[21]
 
     parents_message = f"Farzandingiz {full_name}  pulga nisbatan quyidagicha nuqtai nazari aniqlandi: "
-    user_traits = ",".join(unique_traits_list)
+    user_traits = "|".join(unique_traits_list)
     parents_message += user_traits
 
     user_feedbacks = []
@@ -95,7 +96,7 @@ def send_latest_google_response(request):
         user_feedbacks.append(traits.get(trait))
 
     child_message = f"Sizda:\n"
-    child_message = ",".join(user_feedbacks)
+    child_message = "|".join(user_feedbacks)
 
     telegraph = Telegraph()
     telegraph.create_account(short_name='testbot')

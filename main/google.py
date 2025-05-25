@@ -33,7 +33,7 @@ def get_user_rows(sheet_id, sheet_name="responses"):
     for row in rows:
         if row[22] == rows[-1][22]:
             user_rows.append(row)
-    ic(user_rows)
+    # ic(user_rows)
     return user_rows
 
 def get_result_rows(sheet_id, sheet_name="result"):
