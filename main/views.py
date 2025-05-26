@@ -39,7 +39,7 @@ async def send_sms_message(html_message, phone):
 @api_view(['POST'])
 def send_latest_google_response(request):
     responses_rows = get_user_rows(SHEET_ID)
-    # ic(responses_rows)
+    ic(responses_rows)
     if not responses_rows:
         return JsonResponse({'status': 'error', 'message': 'No data found'})
     responses_row = responses_rows[-1]
@@ -149,11 +149,11 @@ def send_latest_google_response(request):
     html_message = format_as_html(responses_row, path=response['path'])
     ic(html_message)
 
-    async_to_sync(send_sms_message)(html_message_parents, phone=responses_row[23])
-    if responses_row[22]:
-        async_to_sync(send_sms_message)(html_message, phone=responses_row[22])
-    else:
-        async_to_sync(send_sms_message)(html_message, phone=responses_row[23])
+    # async_to_sync(send_sms_message)(html_message_parents, phone=responses_row[23])
+    # if responses_row[22]:
+    #     async_to_sync(send_sms_message)(html_message, phone=responses_row[22])
+    # else:
+    #     async_to_sync(send_sms_message)(html_message, phone=responses_row[23])
 
     if user_options_count == 20:
         user_quiz.completed = True
