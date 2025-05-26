@@ -11,7 +11,7 @@ from telegraph import Telegraph
 from .google import get_user_rows, get_result_rows
 from .models import UserOption, Option, UserTrait, UserQuiz, Quiz
 from .utils import format_as_html, format_as_html_parents
-from core.config import BASIC_AUTH_TOKEN
+from core.config import BEARER_AUTH_TOKEN
 
 User = get_user_model()
 
@@ -26,7 +26,7 @@ async def send_sms_message(html_message, phone):
     })
     headers = {
     'Content-Type': 'application/json',
-    'Authorization': f'Basic {BASIC_AUTH_TOKEN}',
+    'Authorization': f'Bearer {BEARER_AUTH_TOKEN}',
     }
     ic(payload)
     ic(headers)
