@@ -73,19 +73,6 @@ class Score(BaseModel):
         ordering = ['quiz', 'option', 'trait']
 
 
-class UserOption(BaseModel):
-    user = models.ForeignKey(User, related_name='user_options', on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, related_name='user_options', on_delete=models.CASCADE)
-    option = models.ForeignKey(Option, related_name='user_options', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"User {self.user_id} selected {self.option.text}"
-
-    class Meta:
-        unique_together = ('user', 'question', 'option')
-        ordering = ['user', 'question', 'option']
-
-
 class UserQuiz(BaseModel):
     user = models.ForeignKey(User, related_name='quizzes', on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, related_name='user_quizzes', on_delete=models.CASCADE)
@@ -95,13 +82,26 @@ class UserQuiz(BaseModel):
         return f"User {self.user_id} completed {self.quiz.title}: {self.completed}"
 
 
+class UserOption(BaseModel):
+    user = models.ForeignKey(User, related_name='user_options', on_delete=models.CASCADE)
+    # quiz = models.ForeignKey(Quiz, related_name='user_options', on_delete=models.CASCADE, null=True, blank=True)
+    quiz = models.ForeignKey(UserQuiz, related_name='user_options', on_delete=models.CASCADE, null=True, blank=True)
+    question = models.ForeignKey(Question, related_name='user_options', on_delete=models.CASCADE)
+    option = models.ForeignKey(Option, related_name='user_options', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"User {self.user_id} selected {self.option.text}"
+
+    class Meta:
+        # unique_together = ('user', 'question', 'option')
+        ordering = ['user', 'question', 'option']
+
+
 class UserTrait(BaseModel):
     user = models.ForeignKey(User, related_name='user_traits', on_delete=models.CASCADE)
-    quiz = models.ForeignKey(Quiz, related_name='user_traits', on_delete=models.CASCADE)
+    quiz = models.ForeignKey(UserQuiz, related_name='user_traits', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, related_name='user_traits', on_delete=models.CASCADE)
-    option = models.ForeignKey(Option, related_name='user_traits', on_delete=models.CASCADE)
-    
-    
+    option = models.ForeignKey(UserOption, related_name='user_traits', on_delete=models.CASCADE)
     trait = models.JSONField(null=True)
 
     def __str__(self):

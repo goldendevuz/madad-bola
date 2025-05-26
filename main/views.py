@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from telegraph import Telegraph
 
 from .google import get_user_rows, get_result_rows
-from .models import UserOption, Option, UserTrait
+from .models import UserOption, Option, UserTrait, UserQuiz, Quiz
 from .utils import format_as_html, format_as_html_parents
 from core.config import BASIC_AUTH_TOKEN
 
@@ -43,7 +43,7 @@ def send_latest_google_response(request):
     if not responses_rows:
         return JsonResponse({'status': 'error', 'message': 'No data found'})
     responses_row = responses_rows[-1]
-    ic(responses_row)
+    # ic(responses_row)
 
     rows = get_result_rows(SHEET_ID)
     # ic(rows)
@@ -54,75 +54,107 @@ def send_latest_google_response(request):
 
     for trait in rows[2:]:
         traits[trait[0]] = trait[1]
+    # ic(traits)
+    if responses_row[22]:
+        user, created = User.objects.get_or_create(full_name=responses_row[21], student_phone=responses_row[22],
+                                               parents_phone=responses_row[23])
+    else:
+        user, created = User.objects.get_or_create(full_name=responses_row[21], parents_phone=responses_row[23])
 
-    user, created = User.objects.get_or_create(phone=responses_row[23])
+    # ic(user.__dict__)
+    quiz = Quiz.objects.get(title="Biznesbola")
+    # ic(quiz.__dict__)
+    user_quiz = UserQuiz.objects.create(user=user, quiz=quiz)
+    # ic(user_quiz.__dict__)
 
+    user_options_count = 0
     for option_text in responses_row[1:21]:
-        # Find the Option by text
-        option = Option.objects.filter(text=option_text).first()
-        if not option:
-            print(f"Option with text '{option_text}' not found.")
-            continue  # skip if option not found
+        if option_text:
+            # ic(option_text)
+            # for opt in Option.objects.all():
+            #     ic(opt)
+                # ic(opt)
+            # Find the Option by text
+            option = Option.objects.get(text=option_text)
 
-        # Get the related question from option
-        question = option.question
+            # Get the related question from option
+            question = option.question
 
-        # Create the UserOption linking user, question, and option
-        user_option, created = UserOption.objects.get_or_create(
-            user=user,
-            question=question,
-            option=option
-        )
+            # Create the UserOption linking user, question, and option
+            UserOption.objects.get_or_create(
+                user=user,
+                quiz=user_quiz,
+                question=question,
+                option=option
+            )
+            # ic(user_option.__dict__)
+            user_options_count += 1
 
-    user_traits_qs = UserTrait.objects.filter(user=user)
-    all_traits_lists = user_traits_qs.values_list('trait', flat=True)
-    all_traits_lists = all_traits_lists.split()
-    unique_traits = set(chain.from_iterable(filter(None, all_traits_lists)))
-    unique_traits_list = list(unique_traits)
-    ic(user_traits_qs)
-    ic(all_traits_lists)
-    ic(unique_traits)
-    ic(unique_traits_list)
+    user_traits_qs = UserTrait.objects.filter(user=user, quiz=user_quiz)
+    # ic(user_traits_qs)
+
+    unique_traits = set()
+    for ut in user_traits_qs:
+        for trait in ut.trait.split(", "):
+            unique_traits.add(trait)
+        ic(unique_traits)
 
     full_name = responses_row[21]
+    # ic(full_name)
 
     parents_message = f"Farzandingiz {full_name}  pulga nisbatan quyidagicha nuqtai nazari aniqlandi: "
-    user_traits = "|".join(unique_traits_list)
-    parents_message += user_traits
+    user_traits = ", ".join(unique_traits)
+    # ic(user_traits)
+    parents_message += f'<p>{user_traits}</p>'
+    # ic(parents_message)
 
     user_feedbacks = []
 
-    for trait in unique_traits_list:
+    for trait in unique_traits:
+        # ic(trait)
         user_feedbacks.append(traits.get(trait))
+    # ic(user_feedbacks)
 
-    child_message = f"Sizda:\n"
-    child_message = "|".join(user_feedbacks)
+    child_message = f"Sizda: "
+    for feedback in user_feedbacks:
+        child_message += f'<p>{feedback}</p>'
+    # ic(child_message)
 
     telegraph = Telegraph()
     telegraph.create_account(short_name='testbot')
 
     # Generate some test content
-    title = request.data.get('title', 'Test Result')
+    title = request.data.get('title', 'Farzandingizning test natijangiz')
     # content = request.data.get('content', 'This is a test result.')
 
     content = parents_message
+    # ic(content)
 
     # Telegraph API expects content in HTML
     response = telegraph.create_page(
         title=title,
         html_content=f'<p>{content}</p>',
     )
+    # ic(response)
     html_message_parents = format_as_html_parents(row=responses_row, path=response['path'])
     ic(html_message_parents)
 
+    title = request.data.get('title', 'Sizning test natijangiz')
     content = child_message
     response = telegraph.create_page(
         title=title,
         html_content=f'<p>{content}</p>',
     )
+    # ic(response)
     html_message = format_as_html(responses_row, path=response['path'])
     ic(html_message)
 
-    async_to_sync(send_sms_message)(html_message, phone=responses_row[22])
     async_to_sync(send_sms_message)(html_message_parents, phone=responses_row[23])
+    if responses_row[22]:
+        async_to_sync(send_sms_message)(html_message, phone=responses_row[22])
+    else:
+        async_to_sync(send_sms_message)(html_message, phone=responses_row[23])
+
+    if user_options_count == 20:
+        user_quiz.completed = True
     return JsonResponse({'status': 'sent', 'message': html_message})

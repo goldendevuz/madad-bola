@@ -22,7 +22,7 @@ if [ -n "$JPRQ_AUTH_KEY" ]; then
 fi
 
 # Start ngrok tunnel
-NGROK_URL=""
+#NGROK_URL=""
 if [ -n "$NGROK_AUTH_TOKEN" ]; then
   echo "Authenticating ngrok..."
   ngrok config add-authtoken "$NGROK_AUTH_TOKEN"

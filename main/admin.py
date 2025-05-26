@@ -18,12 +18,14 @@ class QuizAdmin(ImportExportModelAdmin):
 class QuestionAdmin(ImportExportModelAdmin):
     resource_class = QuestionResource
     list_display = [field.name for field in Question._meta.fields]
+    list_display_links = list_display
 
 
 @admin.register(Option)
 class OptionAdmin(ImportExportModelAdmin):
     resource_class = OptionResource
-    list_display = [field.name for field in Option._meta.fields]
+    list_display = ['text'] #[field.name for field in Option._meta.fields]
+    list_display_links = list_display
 
 
 @admin.register(Score)
