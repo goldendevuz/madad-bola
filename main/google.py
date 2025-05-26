@@ -27,14 +27,16 @@ def get_user_rows(sheet_id, sheet_name="responses"):
     ).execute()
     # ic(result)
 
-    rows = result.get("values", [])
+    rows = result.get("values", []) #[::-1]
+    return [rows[-1]]
     # ic(rows)
-    user_rows = []
-    for row in rows:
-        if row[22] == rows[-1][22]:
-            user_rows.append(row)
+    # user_rows = []
+    # for row in rows:
+    #     ic(row)
+        # if row[22] == rows[-1][22]:
+        #     user_rows.append(row)
     # ic(user_rows)
-    return user_rows
+    # return user_rows
 
 def get_result_rows(sheet_id, sheet_name="result"):
     range_name = f"{sheet_name}!A1:B19"  # First 4 columns (Timestamp, Name, Phone, Telegram)
