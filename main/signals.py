@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from icecream import ic
-from .models import UserOption, UserTrait, Score
+from .models import UserOption, UserTrait, Score, UserQuiz
+
 
 @receiver(post_save, sender=UserOption)
 def create_user_trait_from_option(sender, instance, created, **kwargs):
@@ -22,11 +23,30 @@ def create_user_trait_from_option(sender, instance, created, **kwargs):
 
     traits = ", ".join([score.get_trait_display() for score in score_qs])
 
-    user_trait = UserTrait.objects.create(
+    user_quiz = UserQuiz.objects.filter(
+        user=user, quiz=quiz, completed=False
+    ).order_by('-created').first()
+
+    if not user_quiz:
+        user_quiz = UserQuiz.objects.create(
+            user=user, quiz=quiz, completed=False
+        )
+
+    user_trait = UserTrait.objects.filter(
         user=user,
-        quiz=quiz,
+        quiz=user_quiz,
         question=question,
-        option=option,
+        option=instance,
         trait=traits or None
-    )
+    ).order_by('-created').first()
+
+    if not user_trait:
+        user_trait = UserTrait.objects.create(
+            user=user,
+            quiz=user_quiz,
+            question=question,
+            option=instance,
+            trait=traits or None
+        )
+
     ic(user_trait.__dict__)
