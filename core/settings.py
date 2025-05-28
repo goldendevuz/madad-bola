@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from .config import SECRET_KEY, DEBUG, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS
+from .config import SECRET_KEY, DEBUG, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, CSRF_COOKIE_SECURE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,7 @@ DEBUG = DEBUG
 
 ALLOWED_HOSTS = ALLOWED_HOSTS
 CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = CSRF_COOKIE_SECURE
 
 
 # Application definition
@@ -137,10 +137,47 @@ AUTH_USER_MODEL = "user.User"
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # Important to not kill other useful logs
+    'formatters': {
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',  # Show only info+ unless overridden below
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Suppress SQL logs (change to DEBUG to enable)
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        # Optional: If you use `ic()` from `icecream`
+        'icecream': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        # Your project-specific loggers, example:
+        'core': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
