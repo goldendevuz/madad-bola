@@ -14,3 +14,4 @@ python-decouple
 telegraph
 uvicorn
 whitenoise
+gunicorn

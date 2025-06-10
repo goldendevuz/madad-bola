@@ -1,45 +1,42 @@
-# Use an official Python runtime as a parent image
-FROM python:3.13-slim
+# === Stage 1: builder ===
+FROM python:3.13-slim AS builder
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Install system dependencies and both jprq & ngrok
+# Install build dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        curl sudo gnupg make && \
-    \
-    # Install jprq
-    curl -fsSL https://jprq.io/install.sh | sudo bash && \
-    \
-    # Install ngrok
-    curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-        | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && \
-    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-        | sudo tee /etc/apt/sources.list.d/ngrok.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends ngrok && \
-    \
-    # Clean up
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends curl sudo make && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip to the latest version
-RUN pip install --upgrade pip
-
-# Install Python dependencies
+# Upgrade pip and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /usr/src/app
+# === Stage 2: final runtime image ===
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /usr/src/app
+
+# Install make (needed for start.sh)
+RUN apt-get update && apt-get install -y --no-install-recommends make && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy Python dependencies from builder
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin/pip /usr/local/bin/pip
+
+# Also copy all executables installed via pip (like gunicorn)
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Copy application code
 COPY . .
 
-# Expose port 1025
 EXPOSE 1025
 
-# Run the startup script
 CMD ["bash", "start.sh"]
