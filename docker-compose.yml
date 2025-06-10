@@ -13,24 +13,7 @@ services:
       - ./core/data/.env:/usr/src/app/core/data/.env:ro
     restart: always
     user: root
-    depends_on:
-      - db
-    networks:
-      - webnet
-
-  db:
-    image: postgres:17
-    container_name: madad_bola_postgres
-    env_file:
-      - core/data/.env
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - webnet
 
 networks:
   webnet:
     driver: bridge
-
-volumes:
-  pgdata:

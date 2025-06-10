@@ -3,13 +3,21 @@ import os
 from icecream import ic
 from decouple import Config, RepositoryEnv, Csv
 
-# .env file path
+# Paths
 ENV_FILE = 'core/data/.env'
+SERVICE_ACCOUNT_FILE = 'core/data/service-account.json'
 
 # Check if .env exists
 if not os.path.exists(ENV_FILE):
     ic('.env fayli topilmadi!')
     ic('.env.example faylidan nusxa ko\'chirib shablonni o\'zizga moslang.')
+    exit(1)
+
+# Check if service-account.json exists
+if not os.path.exists(SERVICE_ACCOUNT_FILE):
+    ic('service-account.json fayli topilmadi!')
+    ic('Iltimos, Firebase uchun kerakli JSON faylni quyidagi joyga qo\'шing:')
+    ic(SERVICE_ACCOUNT_FILE)
     exit(1)
 
 # Load .env
