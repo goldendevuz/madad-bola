@@ -27,7 +27,7 @@ DEBUG = DEBUG
 
 ALLOWED_HOSTS = ALLOWED_HOSTS
 CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS
-CSRF_COOKIE_SECURE = CSRF_COOKIE_SECURE
+CSRF_COOKIE_SECURE = False
 
 
 # Application definition
@@ -134,10 +134,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "user.User"
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Source folders for collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'   # Target folder for collectstatic
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 LOGGING = {
     'version': 1,

@@ -32,7 +32,7 @@ BASE_URL = env('BASE_URL')
 DEBUG = env('DEBUG', cast=bool)
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', cast=Csv())
 CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS', cast=Csv())
-CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE', cast=bool, default=True)
+CSRF_COOKIE_SECURE = not DEBUG # env('CSRF_COOKIE_SECURE', cast=bool, default=True)
 
 # Create webhook path & url
 WEBHOOK_PATH = hashlib.md5(BOT_TOKEN.encode()).hexdigest()
